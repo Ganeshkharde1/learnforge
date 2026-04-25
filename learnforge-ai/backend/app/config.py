@@ -42,12 +42,7 @@ class Settings(BaseSettings):
     FAISS_TOP_K: int = 5
 
     # ── CORS ───────────────────────────────────────────────────────────────────
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://learnforge-ai.web.app",
-        "https://learnforge-ai.firebaseapp.com",
-    ]
+    ALLOWED_ORIGINS: List[str] = ["*"]
 
     # ── Gemini model names (Vertex AI) ───────────────────────────────────────────
     MODEL_PRO: str = "gemini-1.5-pro-002"
