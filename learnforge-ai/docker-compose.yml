@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      - ENVIRONMENT=development
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-learnforge-dev}
+      - GCS_BUCKET_NAME=${GCS_BUCKET_NAME:-learnforge-files}
+      - VERTEX_LOCATION=${VERTEX_LOCATION:-us-central1}
+      - BACKEND_URL=http://localhost:8000
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service-account.json
+    volumes:
+      - ./backend:/app
+      - ./backend/service-account.json:/app/service-account.json:ro
+    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+    restart: unless-stopped
